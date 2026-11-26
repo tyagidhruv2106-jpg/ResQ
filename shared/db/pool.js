@@ -6,12 +6,22 @@ let pool = null;
 
 function getPool() {
   if (!pool) {
+    const poolConfig = config.database.connectionString
+      ? {
+          connectionString: config.database.connectionString,
+          ssl: config.database.ssl,
+        }
+      : {
+          host: config.database.host,
+          port: config.database.port,
+          user: config.database.user,
+          password: config.database.password,
+          database: config.database.database,
+          ssl: config.database.ssl,
+        };
+
     pool = new Pool({
-      host: config.database.host,
-      port: config.database.port,
-      user: config.database.user,
-      password: config.database.password,
-      database: config.database.database,
+      ...poolConfig,
       max: config.database.maxPoolSize,
       idleTimeoutMillis: config.database.idleTimeoutMillis,
       connectionTimeoutMillis: config.database.connectionTimeoutMillis,

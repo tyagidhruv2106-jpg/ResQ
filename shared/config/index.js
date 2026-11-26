@@ -9,11 +9,15 @@ const config = {
   
   // Database configuration (PostgreSQL + PostGIS)
   database: {
+    connectionString: process.env.DATABASE_URL || null,
     host: process.env.POSTGRES_HOST || 'localhost',
     port: parseInt(process.env.POSTGRES_PORT, 10) || 5432,
     user: process.env.POSTGRES_USER || 'resq_user',
     password: process.env.POSTGRES_PASSWORD || 'resq_dev_password',
     database: process.env.POSTGRES_DB || 'resq_db',
+    ssl: process.env.NODE_ENV === 'production' || (process.env.DATABASE_URL && process.env.DB_SSL !== 'false')
+      ? { rejectUnauthorized: false }
+      : false,
     maxPoolSize: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
@@ -28,7 +32,7 @@ const config = {
     exchange: 'resq.events',
     exchangeType: 'topic',
     get url() {
-      return `amqp://${this.user}:${this.password}@${this.host}:${this.port}`;
+      return process.env.RABBITMQ_URL || `amqp://${this.user}:${this.password}@${this.host}:${this.port}`;
     }
   },
 
@@ -40,7 +44,7 @@ const config = {
 
   // Service Ports
   ports: {
-    gateway: parseInt(process.env.GATEWAY_PORT, 10) || 8000,
+    gateway: parseInt(process.env.PORT || process.env.GATEWAY_PORT, 10) || 8000,
     auth: parseInt(process.env.AUTH_PORT, 10) || 8001,
     reports: parseInt(process.env.REPORT_PORT, 10) || 8002,
     organizations: parseInt(process.env.ORG_PORT, 10) || 8003,
