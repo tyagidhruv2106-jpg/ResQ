@@ -1,0 +1,73 @@
+services:
+  # ============================================================================
+  # PostgreSQL 16 with PostGIS 3.4
+  # Provides spatial data types (GEOMETRY Point 4326), spatial indexing (GiST),
+  # and geodesic distance calculations (ST_DWithin, ST_Distance).
+  # ============================================================================
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: resq-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-resq_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-resq_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-resq_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-resq_user} -d ${POSTGRES_DB:-resq_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - resq-network
+
+  # ============================================================================
+  # RabbitMQ 3 with Management Dashboard
+  # AMQP Message Broker enabling asynchronous, decoupled event-driven
+  # communication between Report Service, Matching Service, and Notification Service.
+  # Management UI available at http://localhost:15672
+  # ============================================================================
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: resq-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-resq_rabbit}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-resq_rabbit_dev_password}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - resq-network
+
+# ==============================================================================
+# Persistent Storage Volumes
+# Named volumes ensure data persists across container restarts and builds.
+# ==============================================================================
+volumes:
+  postgres_data:
+    name: resq_postgres_data
+  rabbitmq_data:
+    name: resq_rabbitmq_data
+
+# ==============================================================================
+# Isolated Bridge Network
+# Allows inter-service communication via service names (postgres, rabbitmq).
+# ==============================================================================
+networks:
+  resq-network:
+    name: resq_network
+    driver: bridge

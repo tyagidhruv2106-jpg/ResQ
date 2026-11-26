@@ -1,0 +1,59 @@
+# ==============================================================================
+# ResQ Production Docker Compose
+# Starts: PostgreSQL + PostGIS + RabbitMQ
+# Backend Node.js services run separately via PM2 or npm start
+# ==============================================================================
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: resq-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-resq_db}
+    # Only expose port 5432 on localhost — not publicly
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB:-resq_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - resq-network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: resq-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    # Only expose AMQP on localhost — management UI not publicly exposed
+    ports:
+      - "127.0.0.1:5672:5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - resq-network
+
+volumes:
+  postgres_data:
+    name: resq_postgres_data
+  rabbitmq_data:
+    name: resq_rabbitmq_data
+
+networks:
+  resq-network:
+    name: resq_network
+    driver: bridge

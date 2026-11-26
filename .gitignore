@@ -1,0 +1,36 @@
+# Node Dependencies
+node_modules/
+
+# Environment variables — NEVER commit secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker & Database persistent data
+.docker/
+postgres_data/
+rabbitmq_data/
+
+# Frontend build output (Vercel builds from source)
+frontend/dist/
+frontend/.vite/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# IDE and Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Scratch / test artifacts
+scratch/

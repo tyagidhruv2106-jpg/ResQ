@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #faf9f6;
+    background-image: 
+      radial-gradient(at 10% 10%, rgba(213, 236, 227, 0.45) 0px, transparent 45%),
+      radial-gradient(at 90% 15%, rgba(246, 240, 227, 0.6) 0px, transparent 40%),
+      radial-gradient(at 50% 95%, rgba(180, 221, 206, 0.3) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: #1e293b;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 10px 30px -5px rgba(47, 91, 82, 0.06), 0 4px 10px -2px rgba(0, 0, 0, 0.02);
+  }
+
+  .glass-card-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .glass-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 35px -8px rgba(47, 91, 82, 0.12), 0 6px 14px -3px rgba(0, 0, 0, 0.03);
+    border-color: rgba(95, 171, 150, 0.4);
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(203, 213, 225, 0.6);
+    transition: all 0.2s ease;
+  }
+  .glass-input:focus {
+    background: #ffffff;
+    border-color: #5fab96;
+    box-shadow: 0 0 0 3px rgba(95, 171, 150, 0.15);
+    outline: none;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(95, 171, 150, 0.25);
+  }
+}
