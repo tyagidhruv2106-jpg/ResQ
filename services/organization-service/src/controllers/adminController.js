@@ -104,11 +104,13 @@ async function getReports(req, res, next) {
     const querySql = `
       SELECT
         rr.id,
-        rr.reporter_user_id,
+        rr.reporter_id,
         rr.animal_type,
-        rr.description,
+        rr.breed,
+        rr.condition_description,
         rr.status,
-        rr.urgency_level,
+        rr.severity_level,
+        rr.photo_url,
         rr.address_text,
         ST_Y(rr.location) AS latitude,
         ST_X(rr.location) AS longitude,
